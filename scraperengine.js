@@ -120,13 +120,13 @@ function ScraperEngine(){
 				onFinish=function(){
 					nProcess=0
 					index=0
-					// links=urls;
-					// doJob=doScrape
-					// onFinish=function(){
-					// 	onComplated && onComplated(result)
-					// }
-					// startJob()
-					console.log(urls)
+					links=[urls[0]]
+					doJob=doScrape
+					 onFinish=function(){
+					 	onComplated && onComplated(result)
+					 }
+					startJob()
+					//console.log(urls)
 				}
 				startJob()
 			})
