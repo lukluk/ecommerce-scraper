@@ -1,5 +1,5 @@
 
-var engine=require('./scraperengine')
+var engine=require('./ecommerce-scraper')
 
 engine.start({
 	homepage:'http://tokopedia.com',
@@ -7,7 +7,7 @@ engine.start({
 		var catUrls=[]
 		$('.allcat a').each(function(){
 			catUrls.push($(this).attr('href'))
-		})    
+		})
 		return catUrls
 	},
 	maxProcess:2,
@@ -26,7 +26,7 @@ engine.start({
 	},
 	fields:{
 		title:function($){
-			return $('#product-title').text()
+			return $('.product-title').text()
 		},
 		price:function($){
 			return $('span[itemprop=price]').first().text()

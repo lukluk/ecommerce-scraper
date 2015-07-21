@@ -1,8 +1,8 @@
 {
   "name": "ecommerce-scraper",
-  "version": "0.0.1",
+  "version": "0.0.4",
   "description": "Web Scraper Engine For Ecommerce Sites",
-  "main": "scraperengine.js",
+  "main": "ecommerce-scraper",
   "repository": {
     "type": "git",
     "url": "https://github.com/lukluk/ecommerce-scraper.git"

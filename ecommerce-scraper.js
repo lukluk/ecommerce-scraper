@@ -1,3 +1,4 @@
+var pjson = require('./package.json');
 var charm = require('charm')();
 charm.pipe(process.stdout);
 charm.reset();
@@ -24,6 +25,7 @@ var baseRequest = request.defaults({
       'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.134 Safari/537.36'
     }
   })
+fs.mkdirSync('tmp')
 function write(str){
   y++;
   charm.position(1 ,y)
@@ -33,25 +35,20 @@ function write(str){
 
 function urlToCheerio(url, callback,nocache) {
   charm.foreground('blue')
-  write(url)
-  if(!url){
-    charm.foreground('red')
-    write('|-FAIL ' + url)
-    return callback && callback(true)
-  }
+
   if (!nocache && fs.existsSync('tmp/' + md5(url))) {
     var body = fs.readFileSync('tmp/' + md5(url), 'utf-8')
-    write('|-DONE '+url+'\n')
+    write('|--DONE '+url+'\n')
     return callback && callback(false, cheerio.load(body))
   } else
     baseRequest(url, function(error, response, body) {
       if (!error && response.statusCode == 200) {
         fs.writeFileSync('tmp/' + md5(url), body, 'utf-8')
-        write('|-DONE '+url+'-'+md5(url)+'\n')
+        write('|--DONE '+url+'-'+md5(url)+'\n')
         return callback && callback(false, cheerio.load(body))
       } else {
         charm.foreground('red')
-        write('|-FAIL ' + url)
+        write('|--FAIL ' + url)
         return callback && callback(true)
       }
     })
@@ -65,7 +62,8 @@ function Callback() {
   }
 }
 
-var startJob = function(action) {
+var startJob = function(task,action) {
+  charm.foreground('yellow')
   if(notFinish){
     charm.foreground('red')
     charm.position(1 ,2)
@@ -79,16 +77,17 @@ var startJob = function(action) {
   } else
   if (nProcess == 0) {
     notFinish=true;
+    fn.maxProcess=(fn.maxProcess<=links.length)?fn.maxProcess:links.length
     for (var i = 0; i < fn.maxProcess; i++) {
       nProcess++;
-      startJob(true);
+      startJob(task,true);
     }
   } else
   if (action && notFinish) {
     nProcess--;
     index++;
     doJob(links[index-1], function() {
-      startJob();
+      startJob(task);
     })
 
 
@@ -164,49 +163,49 @@ function confCheck(fnConf) {
 function ScraperEngine() {
   this.start = function(fnConf) {
     fn = fnConf
-    write('SCRAPER ENGINE v7\n')
+    write(pjson.name+' '+pjson.version+'\n')
     write('preparing... \n')
     write('----------------- \n')
 
     if (confCheck(fn)) {
       urlToCheerio(fn.homepage, function(error, $) {
-        links = [fn.getAllCategorys($)[0]]
+        links = fn.getAllCategorys($)
         doJob = getPaginationUrls
         onFinish = function() {
           charm.foreground('magenta')
-          write('done getPaginationUrl \n')
+          write('done \n')
           nProcess = 0
           index = 0
-          links = [pageurls[0]]
+          links = pageurls
           doJob = getProductsUrl
           onFinish = function() {
             charm.foreground('magenta')
-            write('done getProductsUrl \n')
+            write('done \n')
             nProcess = 0
             index = 0
-            //links = urls
-            links=[]
-            for(var i=0;i<10;i++){
-              links.push(urls[i])
-            }
+            links = urls
+            // links=[]
+            // for(var i=0;i<10;i++){
+            //   links.push(urls[i])
+            // }
             doJob = doScraping
             onFinish = function() {
               charm.foreground('magenta')
-              write('done doScraping \n')
+              write('done \n')
               charm.foreground('white')
               fn.onComplated && fn.onComplated(result)
             }
             charm.foreground('magenta')
             write("start doScraping\n")
-            startJob()
+            startJob("doScraping")
           }
           charm.foreground('magenta')
           write("start getProductUrl\n")
-          startJob()
+          startJob("getProductUrl")
         }
         charm.foreground('magenta')
         write("start getPaginationUrls\n")
-        startJob()
+        startJob("getPaginationUrls")
       })
     }
   }
