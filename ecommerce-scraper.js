@@ -2,10 +2,13 @@ var pjson = require('./package.json');
 var charm = require('charm')();
 charm.pipe(process.stdout);
 charm.reset();
+var y = 0;
+var cheerio = require('cheerio')
 var S = require('string')
-var utils = require('./requestUrl');
-var urlToCheerio=utils.urlToCheerio
-var write=utils.write
+var request = require('request').defaults({
+	jar: true
+})
+var md5 = require('MD5')
 var fs = require('fs')
 var fn = {}
 var index = 0
@@ -17,8 +20,41 @@ var links = []
 var result = []
 var urls = []
 var pageurls = []
+var baseRequest = request.defaults({
+	headers: {
+		'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.134 Safari/537.36'
+	}
+})
 if (!fs.existsSync('tmp'))
 	fs.mkdirSync('tmp')
+
+	function write(str) {
+		y++;
+		charm.position(1, y)
+		charm.write(str)
+	}
+	//DOM PROCESSOR
+
+	function urlToCheerio(url, callback, nocache) {
+		charm.foreground('blue')
+
+		if (!nocache && fs.existsSync('tmp/' + md5(url))) {
+			var body = fs.readFileSync('tmp/' + md5(url), 'utf-8')
+			write('|--DONE ' + url + '\n')
+			return callback && callback(false, cheerio.load(body))
+		} else
+			baseRequest(url, function(error, response, body) {
+				if (!error && response.statusCode == 200) {
+					fs.writeFileSync('tmp/' + md5(url), body, 'utf-8')
+					write('|--DONE ' + url + '-' + md5(url) + '\n')
+					return callback && callback(false, cheerio.load(body))
+				} else {
+					charm.foreground('red')
+					write('|--FAIL ' + url)
+					return callback && callback(true)
+				}
+			})
+	}
 
 
 	//JOB MANAGER
@@ -32,15 +68,12 @@ var startJob = function(task, action) {
 	charm.foreground('yellow')
 	if (notFinish) {
 		charm.foreground('red')
-
-
-			var percent = (index / links.length) * 100;
-			write('Task Progress ' + percent + '%')
-
-
+		charm.position(1, 2)
+		var percent = (index / links.length) * 100;
+		charm.write('Task Progress ' + percent + '%')
+		charm.position(0, y)
 	}
 	if (notFinish && index >= links.length) {
-		write(notFinish,index,links.length)
 		notFinish = false;
 		onFinish && onFinish()
 	} else
@@ -76,34 +109,24 @@ var getPaginationUrls = function(url, callback) {
 	})
 }
 var doScraping = function(url, callback) {
-	console.log("SHELL")
-	var spawn = require('child_process').spawn,
-	    ls    = spawn('node bitscraper.js', [url]);
 
-	ls.stdout.on('data', function (data) {
-	  var jdata = JSON.parse(data)
-		for(var i in jdata){
-			result.push(jdata[i])
+	urlToCheerio(url, function(error, $) {
+		if (!error) {
+			var o = {}
+			for (var key in fn.fields) {
+				o[key] = S(fn.fields[key]($)).trim().s
+			}
+			result.push(o)
 		}
 		callback && callback()
-	});
+	})
 
-	ls.stderr.on('data', function (data) {
-		callback && callback()
-	  write('stderr: ' + data);
-	});
-
-	ls.on('close', function (code) {
-	  write('child process exited with code ' + code);
-
-	});
 }
 var getProductsUrl = function(url, callback) {
 
 	urlToCheerio(url, function(error, $) {
 		if (!error) {
 			var productsUrl = fn.getProductsUrl($);
-			write('___O')
 			for (var i in productsUrl) {
 				urls.push(productsUrl[i])
 			}
