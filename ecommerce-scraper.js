@@ -48,7 +48,7 @@ function urlToCheerio(url, callback, nocache) {
         fs.writeFileSync('tmp/' + md5(url), body, 'utf-8')
         write('|--DONE ' + url + '-' + md5(url) + '\n')
         callback && callback(false, cheerio.load(body))
-				delete body
+				body=null
       } else {
         //charm.foreground('red')
         write('|--FAIL ' + url)
@@ -105,7 +105,7 @@ var getPaginationUrls = function(url, callback) {
 
         pageurls.push(fn.formatUrl(url, i))
       }
-			delete $
+			$=null
     }
     callback && callback()
   })
@@ -120,7 +120,7 @@ var doScraping = function(url, callback) {
       }
       result.push(o)
     }
-		delete $
+		$=null
     callback && callback()
   })
 
@@ -134,7 +134,7 @@ var getProductsUrl = function(url, callback) {
           urls.push(productsUrl[i])
         }
       }
-			delete $
+			$=null
       callback && callback()
     })
   }
@@ -181,7 +181,7 @@ function ScraperEngine() {
     if (confCheck(fn)) {
       urlToCheerio(fn.homepage, function(error, $) {
         links = fn.getAllCategorys($)
-				delete $
+				$=null
         doJob = getPaginationUrls
         onFinish = function() {
           //charm.foreground('magenta')
