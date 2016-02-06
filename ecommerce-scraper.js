@@ -105,7 +105,6 @@ var getPaginationUrls = function(url, callback) {
 
         pageurls.push(fn.formatUrl(url, i))
       }
-			$=null
     }
     callback && callback()
   })
@@ -120,7 +119,6 @@ var doScraping = function(url, callback) {
       }
       result.push(o)
     }
-		$=null
     callback && callback()
   })
 
@@ -134,7 +132,6 @@ var getProductsUrl = function(url, callback) {
           urls.push(productsUrl[i])
         }
       }
-			$=null
       callback && callback()
     })
   }
@@ -181,7 +178,6 @@ function ScraperEngine() {
     if (confCheck(fn)) {
       urlToCheerio(fn.homepage, function(error, $) {
         links = fn.getAllCategorys($)
-				$=null
         doJob = getPaginationUrls
         onFinish = function() {
           //charm.foreground('magenta')
