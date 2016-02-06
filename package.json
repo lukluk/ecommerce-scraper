@@ -1,6 +1,6 @@
 {
   "name": "ecommerce-scraper",
-  "version": "0.0.6",
+  "version": "0.0.9",
   "description": "Web Scraper Engine For Ecommerce Sites",
   "main": "ecommerce-scraper",
   "repository": {
@@ -8,7 +8,7 @@
     "url": "git+https://github.com/lukluk/ecommerce-scraper.git"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node lazada.js"
   },
   "keywords": [
     "scraper",
@@ -28,31 +28,14 @@
     "string": "^3.3.0",
     "tough-cookie": "^2.0.0"
   },
-  "gitHead": "659550d80407b6bb8eef038d60ed97d2d6807154",
   "bugs": {
     "url": "https://github.com/lukluk/ecommerce-scraper/issues"
   },
   "homepage": "https://github.com/lukluk/ecommerce-scraper#readme",
-  "_id": "ecommerce-scraper@0.0.6",
-  "_shasum": "9817965b5764710e607b5a57f3a9ea3fe0423704",
-  "_from": "ecommerce-scraper@*",
-  "_npmVersion": "1.4.28",
-  "_nodeVersion": "0.12.5",
-  "_npmUser": {
-    "name": "lukluk",
-    "email": "luklukaha@gmail.com"
-  },
-  "dist": {
-    "shasum": "9817965b5764710e607b5a57f3a9ea3fe0423704",
-    "tarball": "http://registry.npmjs.org/ecommerce-scraper/-/ecommerce-scraper-0.0.6.tgz"
-  },
   "maintainers": [
     {
       "name": "lukluk",
       "email": "luklukaha@gmail.com"
     }
-  ],
-  "directories": {},
-  "_resolved": "https://registry.npmjs.org/ecommerce-scraper/-/ecommerce-scraper-0.0.6.tgz",
-  "readme": "ERROR: No README data found!"
+  ]
 }
