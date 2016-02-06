@@ -36,22 +36,23 @@ function write(str) {
 //DOM PROCESSOR
 
 function urlToCheerio(url, callback, nocache) {
-  charm.foreground('blue')
+  //charm.foreground('blue')
 
   if (!nocache && fs.existsSync('tmp/' + md5(url))) {
     var body = fs.readFileSync('tmp/' + md5(url), 'utf-8')
     write('|--DONE ' + url + '\n')
-    return callback && callback(false, cheerio.load(body))
+    callback && callback(false, cheerio.load(body))
   } else
     baseRequest(url, function(error, response, body) {
       if (!error && response.statusCode == 200) {
         fs.writeFileSync('tmp/' + md5(url), body, 'utf-8')
         write('|--DONE ' + url + '-' + md5(url) + '\n')
-        return callback && callback(false, cheerio.load(body))
+        callback && callback(false, cheerio.load(body))
+				delete body
       } else {
-        charm.foreground('red')
+        //charm.foreground('red')
         write('|--FAIL ' + url)
-        return callback && callback(true)
+        callback && callback(true)
       }
     })
 }
@@ -65,9 +66,9 @@ function Callback() {
 }
 
 var startJob = function(task, action) {
-  charm.foreground('yellow')
+  //charm.foreground('yellow')
   if (notFinish) {
-    charm.foreground('red')
+    //charm.foreground('red')
     charm.position(1, 2)
     var percent = (index / links.length) * 100;
     charm.write('Task Progress ' + percent + '%')
@@ -104,6 +105,7 @@ var getPaginationUrls = function(url, callback) {
 
         pageurls.push(fn.formatUrl(url, i))
       }
+			delete $
     }
     callback && callback()
   })
@@ -118,6 +120,7 @@ var doScraping = function(url, callback) {
       }
       result.push(o)
     }
+		delete $
     callback && callback()
   })
 
@@ -131,12 +134,13 @@ var getProductsUrl = function(url, callback) {
           urls.push(productsUrl[i])
         }
       }
+			delete $
       callback && callback()
     })
   }
   // SCRAPER MAIN CODE
 function confCheck(fnConf) {
-  charm.foreground('white')
+  //charm.foreground('white')
   if (!fnConf) {
     throw new Error('.Scraper Object Input required!');
   }
@@ -177,16 +181,17 @@ function ScraperEngine() {
     if (confCheck(fn)) {
       urlToCheerio(fn.homepage, function(error, $) {
         links = fn.getAllCategorys($)
+				delete $
         doJob = getPaginationUrls
         onFinish = function() {
-          charm.foreground('magenta')
+          //charm.foreground('magenta')
           write('done \n')
           nProcess = 0
           index = 0
           links = pageurls
           doJob = getProductsUrl
           onFinish = function() {
-            charm.foreground('magenta')
+            //charm.foreground('magenta')
             write('done \n')
             nProcess = 0
             index = 0
@@ -197,20 +202,21 @@ function ScraperEngine() {
               // }
             doJob = doScraping
             onFinish = function() {
-              charm.foreground('magenta')
+              //charm.foreground('magenta')
               write('done \n')
-              charm.foreground('white')
+              //charm.foreground('white')
+
               fn.onComplated && fn.onComplated(result)
             }
-            charm.foreground('magenta')
+            //charm.foreground('magenta')
             write("start doScraping\n")
             startJob("doScraping")
           }
-          charm.foreground('magenta')
+          //charm.foreground('magenta')
           write("start getProductUrl\n")
           startJob("getProductUrl")
         }
-        charm.foreground('magenta')
+        //charm.foreground('magenta')
         write("start getPaginationUrls\n")
         startJob("getPaginationUrls")
       })
